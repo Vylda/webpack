@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const config = {
-  mode: 'production',
   entry: './src/index.mjs',
   output: {
     path: resolve(__dirname, 'dist'),
