@@ -10,6 +10,8 @@ const array1 = [1, 2, 3];
 const array2 = [1, 2, 3];
 
 console.log(isEqual(array1, array2).toString()); // true
+console.log("debug Webpack")
+debugger;
 
 const header = document.createElement('h1');
 header.className = style.headerOne;
