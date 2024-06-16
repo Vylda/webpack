@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "build": "webpack --config webpack.config.prod.mjs",
-    "dev": "webpack --config webpack.config.dev.mjs"
+    "dev": "webpack --config webpack.config.dev.mjs",
+    "watch": "webpack --watch --config ./webpack.config.dev.mjs"
   },
   "keywords": [],
   "author": "",
