@@ -1,6 +1,6 @@
 // import isEqual from 'lodash/isEqual.js';
 import isEqual from 'lodash/isEqual';
-import Logo from './images/webpack.webp';
+import Logo from 'Images/webpack.webp';
 import createImage from './createImage.mjs';
 import './css/index.less';
 import style from './css/headers.module.less';

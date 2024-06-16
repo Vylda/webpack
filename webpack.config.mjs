@@ -45,6 +45,11 @@ const config = {
       },
     ],
   },
+  resolve: {
+    alias: {
+      Images: resolve(__dirname, 'src/images/'),
+    },
+  },
 };
 
 export default config;
