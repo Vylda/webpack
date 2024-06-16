@@ -15,6 +15,7 @@ const devConfig = merge(common, {
       },
     ],
   },
+  devtool: 'eval-cheap-source-map',
 });
 
 export default devConfig;
