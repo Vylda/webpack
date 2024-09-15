@@ -1,14 +1,14 @@
-import { FlatCompat } from '@eslint/eslintrc';
+/* eslint-disable import/no-extraneous-dependencies */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FlatCompat } from '@eslint/eslintrc';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  resolvePluginsRelativeTo: __dirname,
+  baseDirectory: dirname,
+  resolvePluginsRelativeTo: dirname,
 });
-
 
 export default compat;

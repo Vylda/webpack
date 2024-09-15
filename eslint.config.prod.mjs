@@ -13,7 +13,7 @@ const config = [
           ],
         },
       ],
-      'no-debugger': 'error'
+      'no-debugger': 'error',
     },
   },
 ];

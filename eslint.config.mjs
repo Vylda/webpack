@@ -1,18 +1,23 @@
-/** @type {import('eslint').Linter.FlatConfig[]} */
-
-// import airbnb from 'eslint-config-airbnb-base';
+/* eslint-disable import/no-extraneous-dependencies */
+/** @type {import('eslint').Linter.Config[]} */
+import globals from 'globals';
 import compat from './flatCompatibility.mjs';
 
 const config = [
-  // airbnb,
   ...compat.extends('airbnb-base'),
   {
-    // ignorePatterns: [],
-    // env: {
-    //   browser: true,
-    //   es2021: true,
-    //   node: true,
-    // },
+    ignores: [],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    files: [
+      '**/*.mjs',
+    ],
     rules: {
       'brace-style': [
         'error',
@@ -26,7 +31,7 @@ const config = [
         'error',
         {
           alphabetize: {
-            order: "asc",
+            order: 'asc',
             caseInsensitive: true,
           },
           groups: [
@@ -46,9 +51,11 @@ const config = [
         'error',
         'never',
         {
-          mjs: 'always'
+          mjs: 'always',
         },
       ],
+      'import/no-named-as-default': 'off',
+      'import/no-named-as-default-member': 'off',
       'no-await-in-loop': 'off',
       'no-console': [
         'warn',
@@ -67,19 +74,14 @@ const config = [
           paths: [
             {
               message: 'Please use lodash/module instead.',
-              name: 'lodash'
+              name: 'lodash',
             },
           ],
         },
       ],
-      'no-restricted-syntax': 'off'
+      'no-restricted-syntax': 'off',
     },
-    // overrides: [
-    //   {
-    //     files: ["./src/*.mjs"],
-    //   },
-    // ],
-  }
+  },
 ];
 
 export default config;
