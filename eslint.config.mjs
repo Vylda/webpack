@@ -1,10 +1,19 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /** @type {import('eslint').Linter.Config[]} */
 import globals from 'globals';
 import compat from './flatCompatibility.mjs';
 
 const config = [
-  ...compat.extends('airbnb-base'),
+  ...compat.config({
+    extends: 'airbnb-base',
+    env: {
+      es2020: true,
+      node: true,
+    },
+    ignorePatterns: [
+      '/*.mjs',
+      'dist/**/*',
+    ],
+  }),
   {
     ignores: [],
     languageOptions: {
@@ -52,6 +61,7 @@ const config = [
         'never',
         {
           mjs: 'always',
+          webp: 'always',
         },
       ],
       'import/no-named-as-default': 'off',
@@ -80,6 +90,16 @@ const config = [
         },
       ],
       'no-restricted-syntax': 'off',
+    },
+    settings: {
+      'import/resolver': {
+        alias: {
+          map: [
+            ['Images', './src/images/'],
+          ],
+          extensions: ['.webp'],
+        },
+      },
     },
   },
 ];

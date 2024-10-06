@@ -1,13 +1,13 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const __dirname = dirname(fileURLToPath(import.meta.url));
+export const directoryName = dirname(fileURLToPath(import.meta.url));
 
 const config = {
   entry: './src/index.mjs',
   output: {
-    path: resolve(__dirname, 'dist'),
-    filename: 'main.js'
+    path: resolve(directoryName, 'dist'),
+    filename: 'main.js',
   },
   module: {
     rules: [
@@ -23,7 +23,7 @@ const config = {
                 localIdentName: '[name]_[local]_[hash:base64:5]',
                 namedExport: false,
               },
-            }
+            },
           },
           'less-loader',
         ],
@@ -46,8 +46,9 @@ const config = {
   },
   resolve: {
     alias: {
-      Images: resolve(__dirname, 'src/images/'),
+      Images: resolve(directoryName, 'src/images/'),
     },
+    extensions: ['.mjs', '.webp'],
   },
 };
 

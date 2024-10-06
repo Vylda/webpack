@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { merge } from 'webpack-merge';
-import common, { __dirname } from './webpack.config.common.mjs';
+import common, { directoryName } from './webpack.config.common.mjs';
 
 const devConfig = merge(common, {
   mode: 'development',
@@ -10,7 +10,7 @@ const devConfig = merge(common, {
     port: 9000,
     static: [
       {
-        directory: join(__dirname, "./dist/"),
+        directory: join(directoryName, './dist/'),
         publicPath: '/', // nepovinné; defaultně je totiž '/'
       },
     ],
