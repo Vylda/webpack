@@ -48,7 +48,7 @@ const config = {
     alias: {
       Images: resolve(directoryName, 'src/images/'),
     },
-    extensions: ['.mjs', '.webp'],
+    extensions: ['.js', '.mjs', '.webp'],
   },
 };
 
