@@ -1,6 +1,7 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import StylelintPlugin from 'stylelint-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export const directoryName = dirname(fileURLToPath(import.meta.url));
 
@@ -46,6 +47,10 @@ const config = {
     ],
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      template: './templates/index.html',
+      title: 'První Webpack aplikace',
+    }),
     new StylelintPlugin({
       extensions: ['less', 'css'],
     }),

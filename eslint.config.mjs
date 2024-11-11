@@ -22,6 +22,7 @@ const config = [
       globals: {
         ...globals.browser,
         ...globals.node,
+        PRODUCTION: true,
       },
     },
     files: [

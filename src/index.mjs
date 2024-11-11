@@ -27,3 +27,7 @@ header.appendChild(document.createTextNode(' aplikace s less'));
 const app = document.querySelector('#app');
 app.appendChild(header);
 app.appendChild(createImage(Logo, imageStyle.withPadding));
+
+const para = document.createElement('p');
+para.textContent = `${PRODUCTION ? 'Jde' : 'Nejde'} o produkční kód.`;
+app.appendChild(para);
