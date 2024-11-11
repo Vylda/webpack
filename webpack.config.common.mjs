@@ -1,5 +1,6 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import StylelintPlugin from 'stylelint-webpack-plugin';
 
 export const directoryName = dirname(fileURLToPath(import.meta.url));
 
@@ -44,6 +45,11 @@ const config = {
       },
     ],
   },
+  plugins: [
+    new StylelintPlugin({
+      extensions: ['less', 'css'],
+    }),
+  ],
   resolve: {
     alias: {
       Images: resolve(directoryName, 'src/images/'),
