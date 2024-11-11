@@ -20,6 +20,27 @@ const devConfig = merge(common, {
     ],
   },
   devtool: 'eval-cheap-source-map',
+  module: {
+    rules: [
+      {
+        test: /\.(css|less)$/u,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              modules: {
+                localIdentName: '[name]_[local]_[hash:base64:5]',
+                namedExport: false,
+              },
+            },
+          },
+          'less-loader',
+        ],
+      },
+    ],
+  },
   plugins: [
     new DefinePlugin({
       PRODUCTION: JSON.stringify(false),
