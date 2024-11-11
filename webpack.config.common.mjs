@@ -8,8 +8,9 @@ export const directoryName = dirname(fileURLToPath(import.meta.url));
 const config = {
   entry: './src/index.mjs',
   output: {
-    path: resolve(directoryName, 'dist'),
+    clean: true,
     filename: 'main.js',
+    path: resolve(directoryName, 'dist'),
   },
   module: {
     rules: [
