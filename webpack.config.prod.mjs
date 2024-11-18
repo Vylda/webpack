@@ -1,8 +1,11 @@
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import common from './webpack.config.common.mjs';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
+import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 
 const { DefinePlugin } = webpack;
 
@@ -38,6 +41,48 @@ const prodConfig = merge(common, {
           'less-loader',
         ],
       },
+    ],
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin(),
+      new CssMinimizerPlugin(),
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.sharpMinify,
+          options: {
+            encodeOptions: {
+              jpeg: {
+                quality: 100,
+              },
+              webp: {
+                lossless: true,
+              },
+              avif: {
+                lossless: true,
+              },
+              png: {
+                quality: 100,
+              },
+              gif: { },
+            },
+          },
+        },
+      }),
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.svgoMinify,
+          options: {
+            encodeOptions: {
+              multipass: true,
+              plugins: [
+                "preset-default",
+              ],
+            },
+          },
+        },
+      }),
     ],
   },
   plugins: [

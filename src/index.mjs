@@ -1,5 +1,5 @@
 // import isEqual from 'lodash/isEqual';
-import Logo from 'Images/webpack.webp';
+import Logo from 'Images/webpack.svg';
 // import isEqual from 'lodash/isEqual.js';
 import createImage from './createImage.mjs';
 import './css/index.less';
