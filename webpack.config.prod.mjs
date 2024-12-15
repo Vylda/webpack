@@ -1,6 +1,7 @@
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
-import common from './webpack.config.common.mjs';
+import { resolve } from 'node:path';
+import common, { directoryName } from './webpack.config.common.mjs';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
@@ -65,7 +66,7 @@ const prodConfig = merge(common, {
               png: {
                 quality: 100,
               },
-              gif: { },
+              gif: {},
             },
           },
         },
@@ -84,6 +85,11 @@ const prodConfig = merge(common, {
         },
       }),
     ],
+  },
+  output: {
+    clean: true,
+    filename: '[name][contenthash].js',
+    path: resolve(directoryName, 'dist'),
   },
   plugins: [
     new DefinePlugin({
