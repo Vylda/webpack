@@ -372,7 +372,7 @@ Nastavení zde udedené vytvoří produkční velmi malé chunky:
 
 Pravdou je, že náš projekt není příliš rozsáhlý.
 
-## Změna cest k vyjenerovaným souborům
+## Změna cest k vygenerovaným souborům
 
 ### Javascript
 
@@ -388,7 +388,7 @@ filename: 'js/[name][contenthash].js',
 
 ### CSS
 
-V souboru `webpack.config.prod.mjs` je třeba změnit cesty k souborům:
+V souboru `webpack.config.prod.mjs` je třeba v sekci `plugins` změnit cestu k CSS souborům:
 
 ```javascript
 new MiniCssExtractPlugin({
