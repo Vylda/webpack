@@ -43,7 +43,6 @@ module: {
 
 Tímto říkáme, že soubory `.mjs` se mají resolvit podle závislosti; zde podle `esm` (ES6 <https://webpack.js.org/configuration/resolve/#resolvebydependency>). Dále říkáme, že soubory `.mjs` nemusí být plně specifikované (tedy včetně koncovky, viz <https://webpack.js.org/configuration/resolve/#resolvefullyspecified>).
 
-
 ## Update balíčků
 Balíčky jsou verzovány (viz [Sémantické verzování 2.0.0](https://semver.org/lang/cs/)). Dále u všech těchto příkazů je třeba, aby balíčky již byly nainstalovány (tedy aby byly v `dependencies` nebo v `devDependencies` a byl spuštěn příkaz `npm install`).
 
@@ -91,3 +90,83 @@ npm install lodash@3.10.1
 ```
 
 I tento příkaz mění verzi balíčku uvedenou jak v `package.json`, tak v `package-lock.json` na zadanou verzi.
+
+## Různé obsahy
+V prvé řadě je potřeby vyrobit nový JS soubor, například `src/page.mjs`:
+
+```javascript
+import Logo from 'Images/webpack.svg';
+import createImage from './createImage.mjs';
+import './css/index.less';
+import style from './css/headers.module.less';
+import imageStyle from './css/image.module.less';
+
+const header = document.createElement('h1');
+header.className = style.headerOne;
+
+header.appendChild(document.createTextNode('Another Webpack file'));
+
+const app = document.querySelector('#app');
+app.appendChild(header);
+app.appendChild(createImage(Logo, imageStyle.withPadding));
+
+const para = document.createElement('p');
+para.textContent = `${PRODUCTION ? 'Jde' : 'Nejde'} o produkční kód.`;
+app.appendChild(para);
+```
+
+Dále je potřeba upravit `webpack.config.common.mjs`, aby uměl zpracovat více `mjs` souborů do tzv. chunků:
+
+```javascript
+entry: {
+  main: './src/index.mjs',
+  page: './src/page.mjs',
+},
+output: {
+  clean: true,
+  filename: '[name].js',
+  path: resolve(directoryName, 'dist'),
+},
+```
+
+Následně je třeba vytvořit novou template stránku `src/another.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+
+</html>
+```
+
+Nyní stačí říct webpacku, že má použít tuto novou stránku a jaký chunk má pro jednotlivé stránky použít:
+
+Upraví se sekce `plugins` v `webpack.config.common.mjs`:
+
+```javascript
+new HtmlWebpackPlugin({
+  filename: 'index.html',
+  template: './templates/index.html',
+  title: 'První Webpack aplikace',
+  chunks: ['main'],
+}),
+new HtmlWebpackPlugin({
+  filename: 'page.html',
+  template: './templates/page.html',
+  title: 'Druhá Webpack aplikace',
+  chunks: ['page'],
+}),
+```
+
+Přidala se nová instance `HtmlWebpackPlugin` pro novou stránku `page.html` a nastavily se pro pro obě instance správné chunky a názvy vygenerovaných souborů.

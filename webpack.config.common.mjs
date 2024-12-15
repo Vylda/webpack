@@ -6,10 +6,13 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 export const directoryName = dirname(fileURLToPath(import.meta.url));
 
 const config = {
-  entry: './src/index.mjs',
+  entry: {
+    main: './src/index.mjs',
+    page: './src/page.mjs',
+  },
   output: {
     clean: true,
-    filename: 'main.js',
+    filename: '[name].js',
     path: resolve(directoryName, 'dist'),
   },
   module: {
@@ -32,8 +35,16 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      filename: 'index.html',
       template: './templates/index.html',
       title: 'První Webpack aplikace',
+      chunks: ['main'],
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'page.html',
+      template: './templates/page.html',
+      title: 'Druhá Webpack aplikace',
+      chunks: ['page'],
     }),
     new StylelintPlugin({
       extensions: ['less', 'css'],
