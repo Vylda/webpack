@@ -407,3 +407,74 @@ assetModuleFilename: 'images/[name][ext]',
 ```javascript
 assetModuleFilename: 'assets/[name][contenthash][ext]',
 ```
+
+### Převod px na rem - PostCSS
+
+Instalace balíku pro převod `px` na `rem`:
+
+```bash
+npm install postcss-pxtorem --save-dev
+```
+
+V souboru `webpack.config.prod.mjs` je třeba do sekce `postcssOptions` přidat konfiguraci pro převod `px` na `rem`:
+
+```javascript
+postcssOptions: {
+  plugins: [
+    [
+
+    …
+
+      'postcss-pxtorem',
+      {
+        propList: ['*'],
+        rootValue: 16,
+      },
+    ],
+  ],
+},
+```
+
+Výše uvedená vlastnost `propList` říká, že se mají převádět všechny vlastnosti z `px` na `rem`. Pokud byste chtěli převádět jen některé vlastnosti, můžete použít následující konfiguraci:
+
+```javascript
+propList: ['font-size', 'margin', 'padding'],
+```
+
+V souboru `headers.module.less` upravte třídu `.headerOne`:
+
+```less
+.headerOne {
+  font-size: 40px;
+  margin: 20px 0;
+  line-height: 60px;
+  color: lighten(@color-blue, 25%);
+  appearance: value;
+
+  .webpack {
+    color: @color-blue;
+  }
+}
+```
+
+a proveďte build aplikace.
+
+Pokud nechcete převádět pixely na `rem` v některé třídě (např. v třídě `image`), můžete přidat následující řádek do konfigurace pluginu `postcss-pxtorem` v souboru `webpack.config.prod.mjs`:
+
+```javascript
+selectorBlackList: ['image'],
+```
+
+nebo
+
+```javascript
+selectorBlackList: ['.image'],
+```
+
+nebo
+
+```javascript
+selectorBlackList: [/^\.image$/],
+```
+
+Více v dokumentaci [postcss-pxtorem](https://github.com/cuth/postcss-pxtorem#readme).

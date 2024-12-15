@@ -1,7 +1,6 @@
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
-import { resolve } from 'node:path';
-import common, { directoryName } from './webpack.config.common.mjs';
+import common from './webpack.config.common.mjs';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
@@ -35,6 +34,14 @@ const prodConfig = merge(common, {
                 plugins: [
                   'postcss-preset-env',
                   'autoprefixer',
+                  [
+                    'postcss-pxtorem',
+                    {
+                      propList: ['*'],
+                      rootValue: 16,
+                      selectorBlackList: [/^\.image$/],
+                    },
+                  ],
                 ],
               },
             },
