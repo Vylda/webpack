@@ -12,8 +12,9 @@ const config = {
   },
   output: {
     clean: true,
-    filename: '[name].js',
+    filename: 'js/[name].js',
     path: resolve(directoryName, 'dist'),
+    assetModuleFilename: 'assets/[name][ext]',
   },
   module: {
     rules: [

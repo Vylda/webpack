@@ -105,9 +105,8 @@ const prodConfig = merge(common, {
     },
   },
   output: {
-    clean: true,
-    filename: '[name][contenthash].js',
-    path: resolve(directoryName, 'dist'),
+    filename: 'js/[name][contenthash].js',
+    assetModuleFilename: 'assets/[name][contenthash][ext]',
   },
   plugins: [
     new DefinePlugin({
@@ -120,7 +119,7 @@ const prodConfig = merge(common, {
       overrideConfigFile: './eslint.config.prod.mjs',
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
+      filename: 'css/[name].[contenthash].css',
     }),
   ],
 });

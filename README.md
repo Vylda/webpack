@@ -188,19 +188,12 @@ kde právě `[contenthash]` zajišťuje, že se název souboru změní, pokud se
 Abychom zabránili cachování i u JS souborů, můžeme přidat následující nastavení v `webpack.config.prod.mjs`:
 
 ```javascript
-import { resolve } from 'node:path';
-import common, { directoryName } from './webpack.config.common.mjs';
-
-…
-
 const prodConfig = merge(common, {
 
 …
 
   output: {
-    clean: true,
     filename: '[name][contenthash].js',
-    path: resolve(directoryName, 'dist'),
   },
 
 …
@@ -378,3 +371,39 @@ Nastavení zde udedené vytvoří produkční velmi malé chunky:
 - kód pro jednotlivé moduly: cca 600 B
 
 Pravdou je, že náš projekt není příliš rozsáhlý.
+
+## Změna cest k vyjenerovaným souborům
+
+### Javascript
+
+V souboru `webpack.config.common.mjs` a v `webpack.config.prod.mjs` je třeba v sekci `output` změnit cesty k souborům:
+
+```javascript
+filename: 'js/[name].js',
+```
+
+```javascript
+filename: 'js/[name][contenthash].js',
+```
+
+### CSS
+
+V souboru `webpack.config.prod.mjs` je třeba změnit cesty k souborům:
+
+```javascript
+new MiniCssExtractPlugin({
+  filename: 'css/[name].[contenthash].css',
+}),
+```
+
+### Obrázky
+
+V souboru `webpack.config.common.mjs` a v `webpack.config.prod.mjs` je třeba do sekce `output` přidat konfiguraci pro cesty k obrázkům:
+
+```javascript
+assetModuleFilename: 'images/[name][ext]',
+```
+
+```javascript
+assetModuleFilename: 'assets/[name][contenthash][ext]',
+```
