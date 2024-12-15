@@ -207,4 +207,174 @@ const prodConfig = merge(common, {
 
 });
 ```
+
 Od této chvíle máme všechny soubory s názvem, který se mění podle obsahu souboru a tím pádem se nebudou cachovat (s výjimkou HTML souborů).
+
+## Rozdělení do více souborů (chunků)
+
+[Dokumentace k rozdělení do více souborů](https://webpack.js.org/guides/code-splitting/)
+
+Rozdělení do více souborů (chunků) je způsob, jak rozdělit kód do více souborů, aby se zrychlilo načítání stránky (zejména, pokud používáme HTTP/2). To je důležité zejména pro velké aplikace, kde je kód rozsáhlý a načítání všeho kódu v jednom souboru by trvalo dlouho.
+
+- [Více o HTTP/2](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2)
+- [Více o HTTP/2 česky](https://www.vzhurudolu.cz/prirucka/http-2)
+
+Kód se dá rozděli několika způsoby:
+1. Rozdělení kódu podle vstupních bodů (entry points) - to již máme vytvořeno v předchozích krocích.
+2. Zabránění duplikacím: přes [vstupní závislosti](https://webpack.js.org/configuration/entry-context/#dependencies) anebo přes [splitChunks](https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks).
+3. Dynamický import: rozdělení kódu pomocí inline funkcí v modulech (viz [dokumentace](https://webpack.js.org/guides/code-splitting/#dynamic-imports)).
+
+Budeme se zabývat bodem 2. pomocí `splitChunks`. Přidáme tedy tento klíč do sekce `optimization` v `webpack.config.common.mjs`:
+
+```javascript
+optimization: {
+
+…
+
+  splitChunks: { },
+
+…
+
+},
+```
+
+### Co se rozděluje
+
+V základu jsou rozdělovány pouze asynchronní chunky. Protože chceme rozdělovat veškerý kód, přidáme nastavení `chunks: 'all'`:
+
+```javascript
+splitChunks: {
+  chunks: 'all',
+},
+```
+
+### Node_modules chunky
+
+Pojďme přidat do obou `js` souborů následující kód:
+
+```javascript
+import isEqual from 'lodash/isEqual';
+
+const array1 = [1, 2, 3];
+const array2 = [1, 2, 3];
+
+const arraysIsSame = isEqual(array1, array2);
+
+const info = document.createElement('p');
+info.textContent = `Pole ${arraysIsSame ? 'jsou' : 'nejsou'} stejná.`;
+app.appendChild(info);
+
+```
+
+Po spuštění buildu se vytvoří nový chunk, ve kterém je pouze kód pro funkci `isEqual`. Pokud bychom importovali pomocí
+
+```javascript
+import { isEqual } from 'lodash';
+```
+
+tak by se vytvořil chunk, ve kterém by byl kód pro všechny funkce z `lodash` a byl by zbytečně velký (protože by obsahoval i nepoužívané funkce).
+
+Naimstalujme balíčedk `date-fns`:
+
+```bash
+npm install date-fns
+```
+
+a do obou souborů přidejme následující kód:
+
+```javascript
+import { format } from 'date-fns';
+
+const date = new Date();
+const formattedDate = format(date, 'dd. MM. yyyy');
+
+const dateInfo = document.createElement('p');
+dateInfo.textContent = `Dnešní datum je ${formattedDate}.`;
+app.appendChild(dateInfo);
+```
+
+Po spuštění buildu se chunk obohatí o kód pro funkci `format`.
+
+Pokud bychom chtěli, aby se vytvořil samostatný chunk pro všechny použité balíčky z `node_modules` s vlastním názbem **nodemodules**, můžeme přidat následující nastavení:
+
+```javascript
+splitChunks: {
+
+  …
+
+  cacheGroups: {
+    nodemodules: {
+      test: /[\\/]node_modules[\\/]/,
+      name: 'nodemodules',
+      chunks: 'all',
+    },
+  },
+},
+```
+
+Pokud chci, aby se pro každý balíček vytvořil vlastní chunk, lze použít následující nastavení (v tomto případě pro balíček `date-fns` a `lodash`):
+
+```javascript
+cacheGroups: {
+  datesfns: {
+    test: /[\\/]node_modules[\\/]date-fns[\\/]/,
+    name: 'datesfns',
+    chunks: 'all',
+  },
+  lodash: {
+    test: /[\\/]node_modules[\\/]lodash[\\/]/,
+    name: 'lodash',
+    chunks: 'all',
+  },
+},
+```
+
+### Chunky z JS modulů
+
+Jednotlivé JS moduly jsou v základu rozděleny do chunků podle `entry` pointů v `webpack.config.common.mjs` (každý vybuilděný soubor spojuje do sebe importované moduly). Pokud chceme, aby se pro každý modul vytvořil samostatný chunk, můžeme použít následující nastavení:
+
+```javascript
+splitChunks: {
+  …
+
+  minChunks: 2,
+},
+```
+
+Nicméně stále je tu dvakrát ten samý chunk pro modul `createImage`. To je způsobeno tím, že se tento modul importuje v obou souborech. Pokud bychom chtěli, aby se pro každý modul vytvořil samostatný chunk, ale aby se duplikace odstranily, můžeme použít následující nastavení:
+
+```javascript
+splitChunks: {
+  …
+
+  minChunks: 2,
+  minSize: 0,
+},
+```
+
+### Velikost chunku
+
+Možnost `maxSize` je určena pro použití s ​​HTTP/2 a pro dlouhodobé ukládáním do cache. Může být také použit ke zmenšení velikosti souboru pro rychlejší rebuild aplikace. Maximální velikost chunku je v bytech. Pokud je chunk větší, než je tato hodnota, bude rozdělen do menších chunků.
+
+```javascript
+splitChunks: {
+  …
+
+  maxSize: 1024 * 1024 ,
+},
+```
+
+Hodnota `maxSize` lze použít i v nastavení `cacheGroups`.
+
+### Shrnutí
+
+Nastavení `splitChunks` je velmi mocné a umožňuje nám velkou flexibilitu v tom, jak se nám kód rozdělí do více souborů. Většinou se používá v kombinaci s `cacheGroups`, kde se dá nastavit, jak se mají jednotlivé chunky pojmenovat a jak se mají vytvářet.
+
+Nastavení zde udedené vytvoří produkční velmi malé chunky:
+
+- kód specifický pro stránku: cca 2,7 kB
+- kód pro `lodash`: cca 15 kB
+- kód pro `date-fns`: cca 19 kB
+- kód pro jednotlivé moduly: cca 600 B
+
+Pravdou je, že náš projekt není příliš rozsáhlý.

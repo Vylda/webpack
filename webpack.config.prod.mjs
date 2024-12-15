@@ -85,6 +85,24 @@ const prodConfig = merge(common, {
         },
       }),
     ],
+    splitChunks: {
+      cacheGroups: {
+        datesfns: {
+          test: /[\\/]node_modules[\\/]date-fns[\\/]/,
+          name: 'datesfns',
+          chunks: 'all',
+        },
+        lodash: {
+          test: /[\\/]node_modules[\\/]lodash[\\/]/,
+          name: 'lodash',
+          chunks: 'all',
+        },
+      },
+      chunks: 'all',
+      minChunks: 2,
+      minSize: 0,
+      maxSize: 1024 * 1024,
+    },
   },
   output: {
     clean: true,
