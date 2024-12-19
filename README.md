@@ -1,5 +1,7 @@
 # Custom Webpack konfigurace
 
+**Upozornění**: Poměrně často se zde pro různá testování používají regulární výrazy, které mohou být pro někoho matoucí. Pokud nevíte, co regulární výrazy jsou, doporučuji si je prozkoumat. Výborný zdroj je [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
+
 ## Nefunkční import lodashe
 
 Problém spočívá v tom, že definujeme v package.json, že budeme používat ES6 moduly `.mjs`, ale lodash je napsaný v CommonJS a mají tedy koncovku `.js`.
@@ -54,13 +56,13 @@ npm update
 
 Tento příkaz změní verze všech balíčků v `package-lock.json` a nainstaluje nové verze všech balíčků. Nicméně obvykle se jedná o update jen minoritní verze (desetinky ve verzi, jde o poslední update v aktuální majoritní verzi).
 
-Pokud chci takto provést update konkrétného balíčku, mohu použít následující příkaz:
+Pokud chcete takto provést update konkrétného balíčku, můžete použít následující příkaz:
 
 ```bash
 npm update lodash
 ```
 
-Pokud je potřeba provést update na majoritní verzi (první číslo ve verzi), je třeba zvolit jiný přístup. Nejdříve se podívám, které balíčky jsou zastaralé:
+Pokud je potřeba provést update na majoritní verzi (první číslo ve verzi), je třeba zvolit jiný přístup. Nejdříve se podíváme, které balíčky jsou zastaralé:
 
 ```bash
 npm outdated
@@ -73,7 +75,7 @@ Package  Current  Wanted   Latest  Location             Depended by
 lodash    3.10.1  3.10.1  4.17.21  node_modules/lodash  webpack
 ```
 
-Je vidět, že balíček `lodash` má aktuální verzi `3.10.1`, ale je dostupná verze `4.17.21`. Pokud chci provést update na nejnovější majoritní verzi, je třeba použít následující příkaz:
+Je vidět, že balíček `lodash` má aktuální verzi `3.10.1`, ale je dostupná verze `4.17.21`. Pokud chcete provést update na nejnovější majoritní verzi, je třeba použít následující příkaz:
 
 ```bash
 npm install lodash@latest
@@ -81,7 +83,7 @@ npm install lodash@latest
 
 Tento příkaz změní verzi balíčku uvedenou jak v `package.json`, tak v `package-lock.json` na nejnovější majoritní verzi.
 
-Nicméně pozor, pokud je balíček závislý na jiných balíčcích, může se stát, že po upgradu na majoritní verzi se něco rozbije. Majoritní verze mohou být totiž zpětně nekompatibilní. Proto je dobré mít napsané testy a provést je po updatu balíčků.
+Nicméně pozor, pokud je balíček závislý na jiných balíčcích, může se stát, že se po upgradu na majoritní verzi něco rozbije. Majoritní verze mohou být totiž zpětně nekompatibilní. Proto je dobré mít napsané testy a provést je po updatu balíčků.
 
 Pokud je třeba nainstalovat balíček v konkrétní verzi (zde například `3.10.1`), je třeba použít následující příkaz:
 
@@ -152,7 +154,7 @@ Následně je třeba vytvořit novou template stránku `src/another.html`:
 
 Nyní stačí říct webpacku, že má použít tuto novou stránku a jaký chunk má pro jednotlivé stránky použít:
 
-Upraví se sekce `plugins` v `webpack.config.common.mjs`:
+Upravíme sekci `plugins` v `webpack.config.common.mjs`:
 
 ```javascript
 new HtmlWebpackPlugin({
@@ -169,13 +171,13 @@ new HtmlWebpackPlugin({
 }),
 ```
 
-Přidala se nová instance `HtmlWebpackPlugin` pro novou stránku `page.html` a nastavily se pro pro obě instance správné chunky a názvy vygenerovaných souborů.
+Přidali jsme novou instanci `HtmlWebpackPlugin` pro novou stránku `page.html` a nastavili jme pro pro obě instance správné chunky a názvy vygenerovaných souborů.
 
 ## Zabránění cachování
 
 Standardně se u klienta (případně na serveru) cachuje obsah souborů, aby se šetřila data a zrychlila se odezva. To je většinou výhodné, ale pokud se soubory mění, může být problém, že se neaktualizují, protože ivalidaci cache způsobí zejména změna jména souboru.
 
-Naše CSS soubory se generují s názvem souboru, který je odvozen od obsahu souboru. Pokud se obsah souboru nezmění, název souboru se nezmění a prohlížeč bude stále používat starý soubor. Za to může následující nastavení v `webpack.config.prod.mjs`:
+Naše CSS soubory se již generují s názvem souboru, který je odvozen od obsahu souboru (vlužili jsme tam hash obsahu). Pokud se obsah souboru nezmění, název souboru se tím pádem také nezmění a prohlížeč bude stále používat starý soubor. Za to může následující nastavení ve `webpack.config.prod.mjs`:
 
 ```javascript
 new MiniCssExtractPlugin({
@@ -183,7 +185,7 @@ new MiniCssExtractPlugin({
 }),
 ```
 
-kde právě `[contenthash]` zajišťuje, že se název souboru změní, pokud se změní obsah souboru. Toto je tedy způsob, jak zabránit cachování souborů.
+kde právě `[contenthash]` zajišťuje, že se název souboru změní, pokud se změní obsah souboru. Toto je tedy dobrý způsob, jak invalidovat souborovou cache a browser nepoužíval starý soubor, který má v cche.
 
 Abychom zabránili cachování i u JS souborů, můžeme přidat následující nastavení v `webpack.config.prod.mjs`:
 
@@ -207,7 +209,7 @@ Od této chvíle máme všechny soubory s názvem, který se mění podle obsahu
 
 [Dokumentace k rozdělení do více souborů](https://webpack.js.org/guides/code-splitting/)
 
-Rozdělení do více souborů (chunků) je způsob, jak rozdělit kód do více souborů, aby se zrychlilo načítání stránky (zejména, pokud používáme HTTP/2). To je důležité zejména pro velké aplikace, kde je kód rozsáhlý a načítání všeho kódu v jednom souboru by trvalo dlouho.
+Rozdělení do více souborů (chunků) je způsob, jak rozdělit produkční soubory tak, aby se zrychlilo načítání stránky (zejména, pokud používáme HTTP/2). To je důležité zejména pro velké aplikace, kde je kód rozsáhlý a načítání veškerého kódu v jednom souboru by trvalo dlouho.
 
 - [Více o HTTP/2](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2)
 - [Více o HTTP/2 česky](https://www.vzhurudolu.cz/prirucka/http-2)
@@ -286,9 +288,9 @@ dateInfo.textContent = `Dnešní datum je ${formattedDate}.`;
 app.appendChild(dateInfo);
 ```
 
-Po spuštění buildu se chunk obohatí o kód pro funkci `format`.
+Po spuštění buildu se původní chunk s lodashem obohatí o kód pro funkci `format`.
 
-Pokud bychom chtěli, aby se vytvořil samostatný chunk pro všechny použité balíčky z `node_modules` s vlastním názbem **nodemodules**, můžeme přidat následující nastavení:
+Pokud bychom chtěli, aby se vytvořil samostatný chunk pro všechny použité balíčky z `node_modules` s vlastním názvem **nodemodules**, můžeme přidat následující nastavení:
 
 ```javascript
 splitChunks: {
@@ -305,7 +307,7 @@ splitChunks: {
 },
 ```
 
-Pokud chci, aby se pro každý balíček vytvořil vlastní chunk, lze použít následující nastavení (v tomto případě pro balíček `date-fns` a `lodash`):
+Pokud chceme, aby se pro každý balíček vytvořil vlastní chunk, lze použít následující nastavení (v tomto případě pro balíček `date-fns` a `lodash`):
 
 ```javascript
 cacheGroups: {
@@ -334,7 +336,7 @@ splitChunks: {
 },
 ```
 
-Nicméně stále je tu dvakrát ten samý chunk pro modul `createImage`. To je způsobeno tím, že se tento modul importuje v obou souborech. Pokud bychom chtěli, aby se pro každý modul vytvořil samostatný chunk, ale aby se duplikace odstranily, můžeme použít následující nastavení:
+Nicméně stále je tu dvakrát ten samý chunk pro modul `createImage`. To je způsobeno tím, že se tento modul importuje v obou souborech. Pokud bychom chtěli, aby se pro každý modul nevytvořil samostatný chunk, ale aby se duplikace odstranily, můžeme použít následující nastavení:
 
 ```javascript
 splitChunks: {
@@ -347,7 +349,7 @@ splitChunks: {
 
 ### Velikost chunku
 
-Možnost `maxSize` je určena pro použití s ​​HTTP/2 a pro dlouhodobé ukládáním do cache. Může být také použit ke zmenšení velikosti souboru pro rychlejší rebuild aplikace. Maximální velikost chunku je v bytech. Pokud je chunk větší, než je tato hodnota, bude rozdělen do menších chunků.
+Možnost `maxSize` je určena pro použití s ​​HTTP/2 a pro dlouhodobé ukládání do cache. Může být také použit ke zmenšení velikosti souboru pro rychlejší rebuild aplikace. Maximální velikost chunku je v bytech. Pokud je chunk větší, než je tato hodnota, bude rozdělen do menších chunků.
 
 ```javascript
 splitChunks: {
@@ -357,13 +359,13 @@ splitChunks: {
 },
 ```
 
-Hodnota `maxSize` lze použít i v nastavení `cacheGroups`.
+Hodnotu `maxSize` lze použít i v nastavení `cacheGroups`.
 
 ### Shrnutí
 
 Nastavení `splitChunks` je velmi mocné a umožňuje nám velkou flexibilitu v tom, jak se nám kód rozdělí do více souborů. Většinou se používá v kombinaci s `cacheGroups`, kde se dá nastavit, jak se mají jednotlivé chunky pojmenovat a jak se mají vytvářet.
 
-Nastavení zde udedené vytvoří produkční velmi malé chunky:
+Nastavení zde uvedené vytvoří produkční velmi malé chunky:
 
 - kód specifický pro stránku: cca 2,7 kB
 - kód pro `lodash`: cca 15 kB
@@ -410,7 +412,7 @@ assetModuleFilename: 'assets/[name][contenthash][ext]',
 
 ## Převod px na rem - PostCSS
 
-Instalace balíku pro převod `px` na `rem`:
+Instalace balíčku pro převod `px` na `rem` při postCSS procesu:
 
 ```bash
 npm install postcss-pxtorem --save-dev
@@ -457,9 +459,9 @@ V souboru `headers.module.less` upravte třídu `.headerOne`:
 }
 ```
 
-a proveďte build aplikace.
+a proveďte produkční build aplikace.
 
-Pokud nechcete převádět pixely na `rem` v některé třídě (např. v třídě `image`), můžete přidat následující řádek do konfigurace pluginu `postcss-pxtorem` v souboru `webpack.config.prod.mjs`:
+Pokud nechceme převádět pixely na `rem` v některé třídě (např. v třídě `image`), můžeme přidat následující řádek do konfigurace pluginu `postcss-pxtorem` v souboru `webpack.config.prod.mjs`:
 
 ```javascript
 selectorBlackList: ['image'],
@@ -481,7 +483,7 @@ Více v dokumentaci [postcss-pxtorem](https://github.com/cuth/postcss-pxtorem#re
 
 ## Generování jen CSS souborů (nebo obrázků atp.)
 
-Webpack je určen pro generování všech souborů, které jsou importovány v JS souborech. Protože naše CSS je importováno v JS souborech, je generováno vše. Tedy je nemožné generovat pouze CSS soubory (nebo assety, jako jsou obrázky atp.). Je tedy nutné vždy vygenerovat vše a následně smazat nepotřebné soubory.
+Webpack je především určen pro generování všech souborů, které jsou importovány v JS souborech. Protože naše CSS je importováno v JS souborech, je třeba generovat veškeré soubory (čímž se generují i HTML stránky a assety). Proto je nemožné generovat pouze CSS soubory (nebo assety, jako jsou obrázky atp.). Je tedy nutné vždy vygenerovat vše a následně smazat nepotřebné soubory.
 
 ### Smazání nepotřebných souborů
 
@@ -556,7 +558,7 @@ Více v [dokumentaci](https://github.com/Amaimersion/remove-files-webpack-plugin
 
 ### Spuštění CSS buildu
 
-Do souboru `package.json` do sekce `scripts` přidejte nový příkaz:
+Do souboru `package.json` do sekce `scripts` přidejme nový příkaz:
 
 ```json
 "scripts": {
@@ -566,12 +568,14 @@ Do souboru `package.json` do sekce `scripts` přidejte nový příkaz:
   },
 ```
 
-A následně spustě tento build:
+A následně spustíme tento build:
 
 ```bash
 npm run css
 ```
 
-### Poznámka
+### Poznámka autora
 
 Osobně mi toto nedává moc smysl, protože když změním CSS, změní se i jeho hash. Proto je lepší i při změně CSS souboru znovu vybuildit celou aplikaci.
+
+A rovněž se přiznám, že jsem nenašel způsob, jak vygenerovat jen CSS soubory a ne HTML soubory. Pokud někdo víte, jak toho docílit, budu rád za informaci.
