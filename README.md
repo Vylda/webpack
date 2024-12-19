@@ -1,4 +1,4 @@
-# Problémy
+# Custom Webpack konfigurace
 
 ## Nefunkční import lodashe
 
@@ -408,7 +408,7 @@ assetModuleFilename: 'images/[name][ext]',
 assetModuleFilename: 'assets/[name][contenthash][ext]',
 ```
 
-### Převod px na rem - PostCSS
+## Převod px na rem - PostCSS
 
 Instalace balíku pro převod `px` na `rem`:
 
@@ -478,3 +478,100 @@ selectorBlackList: [/^\.image$/],
 ```
 
 Více v dokumentaci [postcss-pxtorem](https://github.com/cuth/postcss-pxtorem#readme).
+
+## Generování jen CSS souborů (nebo obrázků atp.)
+
+Webpack je určen pro generování všech souborů, které jsou importovány v JS souborech. Protože naše CSS je importováno v JS souborech, je generováno vše. Tedy je nemožné generovat pouze CSS soubory (nebo assety, jako jsou obrázky atp.). Je tedy nutné vždy vygenerovat vše a následně smazat nepotřebné soubory.
+
+### Smazání nepotřebných souborů
+
+Ke smazání nepotřebných souborů použijeme plug`remove-files-webpack-plugin`:
+
+```bash
+npm i -D remove-files-webpack-plugin
+```
+
+Následně vytvoříme nový soubor `webpack.config.css.mjs`, který bude vycházet z `webpack.config.prod.mjs`:
+
+```javascript
+import { merge } from 'webpack-merge';
+import prod from './webpack.config.prod.mjs';
+
+const cssConfig = merge(prod, { });
+
+export default cssConfig;
+```
+
+Potřebujeme použít nový plugim, ale nechceme, aby se nám nepoužily pluginy z produkce. proto nejdříve do souboru `webpack.config.css.mjs` přidáme pluginy z produkce :
+
+```javascript
+import { merge } from 'webpack-merge';
+import prod from './webpack.config.prod.mjs';
+
+const cssConfig = merge(prod, {
+  plugins: [
+    ...prod.plugins,
+  ],
+});
+
+export default cssConfig;
+```
+
+Následně přidáme nový plugin:
+
+```javascript
+import { merge } from 'webpack-merge';
+import RemovePlugin from 'remove-files-webpack-plugin';
+import prod from './webpack.config.prod.mjs';
+
+const cssConfig = merge(prod, {
+  plugins: [
+    ...prod.plugins,
+    new RemovePlugin({
+      after: {
+        root: prod.output.path,
+        include: ['./js', './assets'],
+        test: [
+          {
+            folder: '.',
+            method: (filePath) => /\.html$/.test(filePath),
+          },
+        ],
+      },
+    }),
+  ],
+});
+
+export default cssConfig;
+```
+
+#### Konfigurace pluginu
+
+- `after`: určuje, kdy se má plugin spustit (po buildu)
+- `root`: kořenová složka, ve které se má plugin spustit
+- `include`: složky, které se mají smazat
+- `test`: testovací funkce, která určuje, které soubory se mají smazat (v tomto případě všechny HTML soubory v root složce)
+
+Více v [dokumentaci](https://github.com/Amaimersion/remove-files-webpack-plugin/blob/master/README.md).
+
+### Spuštění CSS buildu
+
+Do souboru `package.json` do sekce `scripts` přidejte nový příkaz:
+
+```json
+"scripts": {
+    …
+    "css": "webpack --config webpack.config.css.mjs",
+    …
+  },
+```
+
+A následně spustě tento build:
+
+```bash
+npm run css
+```
+
+### Poznámka
+
+Osobně mi toto nedává moc smysl, protože když změním CSS, změní se i jeho hash. Proto je lepší i při změně CSS souboru znovu vybuildit celou aplikaci.
